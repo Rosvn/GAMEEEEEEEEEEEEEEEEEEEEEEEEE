@@ -1,0 +1,48 @@
+name: Build Android APK
+
+# Builds a debug APK automatically on every push (and on demand).
+# Download it from the run's "Artifacts" section: Actions ▸ Build Android APK ▸ barbie-kens-apk
+# NOTE: this expects the project (package.json) at the repository ROOT.
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install & build the web game
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create / sync the Android project
+        run: |
+          [ -d android ] || npx cap add android
+          npx cap sync android
+
+      - name: App icons (optional)
+        continue-on-error: true
+        run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#1c0f2a' --iconBackgroundColorDark '#1c0f2a'
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: barbie-kens-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
