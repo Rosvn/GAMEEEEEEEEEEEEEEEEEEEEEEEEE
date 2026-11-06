@@ -14,26 +14,25 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build Web Application
-        run: npx vite build --emptyOutDir || npm run build || true
-
-      - name: Create Web Directory Fallback
-        run: |
-          mkdir -p dist
-          if [ ! -f dist/index.html ]; then
-            cp index.html dist/ || true
-          fi
+          node-version: 20
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Install Dependencies & Build Web Assets
+        run: |
+          npm install --legacy-peer-deps
+          npm run build || npx vite build || true
+
+      - name: Ensure Dist Directory Exists
+        run: |
+          mkdir -p dist
+          if [ ! -f dist/index.html ]; then
+            cp index.html dist/ 2>/dev/null || true
+          fi
 
       - name: Setup Capacitor and Android Platform
         run: |
