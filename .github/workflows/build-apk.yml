@@ -16,16 +16,17 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Dependencies & Build Web Assets
+      - name: Install Dependencies & Build Web App
         run: |
           npm install
-          npm run build || echo "No build script found, skipping..."
+          npm run build
 
-      - name: Install Capacitor & Android Platform
+      - name: Install Capacitor & Add Android Platform
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap init "Barbie Game" "com.rosvn.barbiegame" --web-dir "dist" --bundled-web-runtime false || true
           npx cap add android || true
+          npx cap copy android
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
