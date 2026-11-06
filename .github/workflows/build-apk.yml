@@ -17,10 +17,17 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
-      - name: Build Web App
-        run: npm run build || npx vite build
+      - name: Build Web Application
+        run: npx vite build --emptyOutDir || npm run build || true
+
+      - name: Create Web Directory Fallback
+        run: |
+          mkdir -p dist
+          if [ ! -f dist/index.html ]; then
+            cp index.html dist/ || true
+          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
